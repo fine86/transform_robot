@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0.2)
 project(transform_robot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+# add_compile_options(-warping_cam-compiler-flag)
+
+# find_package(warping_cam REQUIRED COMPONENTS)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,8 +14,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  warping_cam
+  sensor_msgs
+  cv_bridge
+  fiducial_msgs
+  geometry_msgs
 )
+
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
@@ -70,10 +76,10 @@ find_package(OpenCV REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+     geometry_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -105,10 +111,11 @@ find_package(OpenCV REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES transform_robot
-#  CATKIN_DEPENDS aruco_detect roscpp rospy std_msgs warping_cam
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES transform_robot
+  CATKIN_DEPENDS aruco_detect roscpp rospy std_msgs 
+  DEPENDS system_lib
+  std_msgs
 )
 
 ###########
@@ -120,6 +127,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -206,3 +214,5 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+add_executable(transform_robot_node src/transpose.cpp)
+target_link_libraries(transform_robot_node ${catkin_LIBRARIES} ${OpenCV_LIBS})
